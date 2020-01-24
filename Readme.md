@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Павел Пучков](https://up.htmlacademy.ru/javascript/19/user/1155397).
-* Наставник: `Неизвестно`.
+* Наставник: `Алексей Балесный`.
 
 ---
 
