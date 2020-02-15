@@ -3,89 +3,117 @@
 var map = document.querySelector('.map');
 var markersBlock = map.querySelector('.map__pins');
 var markersTemplate = document.querySelector('#pin').content;
+var locationXMax = map.offsetWidth - 25;
 
 // Массивы данных
 
-var avatars = ['01', '02', '03', '04', '05', '06', '07', '08'];
-var title = ['Объявление о сдаче', 'Сдам помещение', 'Жду гостей'];
-var price = [1000, 2000, 3000, 4000, 5000];
-var typeHouse = ['palace', 'flat', 'house', 'bungalo'];
+var housings = ['palace', 'flat', 'house', 'bungalo'];
 var rooms = [1, 2, 3, 4, 5];
 var guests = [1, 2, 3, 4, 5, 6];
-var checkIn = ['12:00', '13:00', '14:00'];
-var checkOut = ['12:00', '13:00', '14:00'];
+var times = ['12:00', '13:00', '14:00'];
 var features = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
-var description = ['Свобно, стильно современно', 'Шикарный вид из окна', 'Рядом с центром города'];
+var descriptions = ['Свобно, стильно современно', 'Шикарный вид из окна', 'Рядом с центром города'];
 var photos = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
 
+// Константы
+var HEIGTH_PIN = 70;
+var HALF_WIDTH_PIN = 25;
+var MIN_PRICE = 1000;
+var MAX_PRICE = 20000;
 var QUANTITY_OFFERS = 8; // Количество выводимых элементов на страницу
+var LOCATION_Y_MIN = 130;
+var LOCATION_Y_MAX = 630;
+var LOCATION_X_MIN = 25;
 
-// Генерируем случайное число из массива
+// -----------------------Генерация случайных элементов ----------------------------------- \\
+
+// Генерация случайного целого числа
+var getRandomNumber = function (min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+// Генерируем случайный элемент из массива
 var getRandomElement = function (array) {
   return array[Math.floor(Math.random() * array.length)];
 };
 
-// Генерируем случайные координаты Х и Y
-var getRandomCoordinateX = function () {
-  return Math.floor(Math.random() * (750 - 1 + 1)) + 1;
+// Функция задает случайную длину массива
+var cutArray = function (array) {
+  return array.slice(0, getRandomNumber(1, array.length));
 };
 
-var getRandomCoordinateY = function () {
-  return Math.floor(Math.random() * (630 - 130 + 1)) + 130;
+// Функция перемешивает массив
+var mixArray = function (array) {
+  var j;
+  var temp;
+
+  for (var i = array.length - 1; i > 0; i--) {
+    j = Math.floor(Math.random() * (i + 1));
+    temp = array[j];
+    array[j] = array[i];
+    array[i] = temp;
+  }
+
+  return array;
 };
+
+// -----------------------Генерация и отрисовка объектов ----------------------------------- \\
 
 // Генерируем объекты
 
-var getRandomOffer = function () {
+var getRandomOffer = function (index) {
   var mark = {
     author: {
-      avatar: 'img/avatars/user' + getRandomElement(avatars) + '.png'
+      avatar: 'img/avatars/user0' + (index + 1) + '.png',
     },
 
     offer: {
-      title: getRandomElement(title),
-      adress: getRandomCoordinateX() + ',' + getRandomCoordinateY(),
-      price: getRandomElement(price),
-      type: getRandomElement(typeHouse),
+      title: 'Заголовок объявления',
+      adress: location.x + ',' + location.y,
+      price: getRandomNumber(MIN_PRICE, MAX_PRICE),
+      type: getRandomElement(housings),
       rooms: getRandomElement(rooms),
       guests: getRandomElement(guests),
-      checkin: getRandomElement(checkIn),
-      checkout: getRandomElement(checkOut),
-      features: getRandomElement(features),
-      description: getRandomElement(description),
-      photos: getRandomElement(photos)
+      checkin: getRandomElement(times),
+      checkout: getRandomElement(times),
+      features: cutArray(mixArray(features)),
+      description: getRandomElement(descriptions),
+      photos: cutArray(photos)
     },
 
     location: {
-      x: getRandomCoordinateX(),
-      y: getRandomCoordinateY()
+      x: getRandomNumber(LOCATION_X_MIN, locationXMax),
+      y: getRandomNumber(LOCATION_Y_MIN, LOCATION_Y_MAX)
     }
   };
   return mark;
 };
 
 // Генерируем массив с объявлениями
-var getAdvertisingArr = function (number) {
-  var advertising = [];
+var getAdArray = function (number) {
+  var ads = [];
 
   for (var i = 0; i < number; i++) {
-    advertising.push(getRandomOffer());
+    ads.push(getRandomOffer(i));
   }
 
-  return advertising;
+  return ads;
 };
 
 // Клонируем маркеры
+var pin = markersTemplate.querySelector('.map__pin');
 
 var renderMarks = function (mark) {
-  var marks = markersTemplate.querySelector('.map__pin').cloneNode(true);
+  var clone = pin.cloneNode(true);
 
-  marks.querySelector('img').src = mark.author.avatar;
-  marks.querySelector('img').alt = mark.offer.title;
-  marks.style.left = (mark.location.x - 25) + 'px';
-  marks.style.top = (mark.location.y - 25) + 'px';
+  clone.querySelector('img').src = mark.author.avatar;
+  clone.querySelector('img').alt = mark.offer.title;
+  clone.style.left = (mark.location.x - HALF_WIDTH_PIN) + 'px';
+  clone.style.top = (mark.location.y - HEIGTH_PIN) + 'px';
 
-  return marks;
+  return clone;
 };
 
 var getFragment = function (array) {
@@ -97,7 +125,7 @@ var getFragment = function (array) {
   return fragment;
 };
 
-markersBlock.appendChild(getFragment(getAdvertisingArr(QUANTITY_OFFERS)));
+markersBlock.appendChild(getFragment(getAdArray(QUANTITY_OFFERS)));
 
 // Скрываем приветствие
 
