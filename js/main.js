@@ -4,6 +4,9 @@ var map = document.querySelector('.map');
 var markersBlock = map.querySelector('.map__pins');
 var markersTemplate = document.querySelector('#pin').content;
 var locationXMax = map.offsetWidth - 25;
+var pin = markersTemplate.querySelector('.map__pin');
+var addCardTemplate = document.querySelector('#card').content.querySelector('.map__card');
+var filtersContainer = map.querySelector('.map__filters-container');
 
 // Массивы данных
 
@@ -102,8 +105,9 @@ var getAdArray = function (number) {
   return ads;
 };
 
+var addArray = getAdArray(QUANTITY_OFFERS);
+
 // Клонируем маркеры
-var pin = markersTemplate.querySelector('.map__pin');
 
 var renderMarks = function (mark) {
   var clone = pin.cloneNode(true);
@@ -125,7 +129,43 @@ var getFragment = function (array) {
   return fragment;
 };
 
+// Создание карточки объявления
+
+var renderAddCard = function (mark) {
+  var addCard = addCardTemplate.cloneNode(true);
+
+  var addCardTitle = addCard.querySelector('.popup__title');
+  var addCardAddress = addCard.querySelector('.popup__text--address');
+  var addCardPrice = addCard.querySelector('.popup__text--price');
+  var addCardType = addCard.querySelector('.popup__type');
+  var addCardCapacity = addCard.querySelector('.popup__text--capacity');
+  var addCardTime = addCard.querySelector('.popup__text--time');
+  var houseType = '';
+
+  addCardTitle.textContent = mark.offer.title;
+  addCardAddress.textContent = mark.offer.address;
+  addCardType.textConten = mark.offer.type;
+  addCardPrice.textContent = mark.offer.price + '₽/ночь';
+  addCardCapacity.textContent = mark.offer.rooms + mark.offer.guests;
+  addCardTime.textContent = mark.offer.checkin + mark.offer.checkout;
+
+  // Выбираем тип жилья
+  if (mark.offer.type === 'palace') {
+    houseType = 'Дворец';
+  } else if (mark.offer.type === 'flat') {
+    houseType = 'Квартира';
+  } else if (mark.offer.type === 'house') {
+    houseType = 'Дом';
+  } else if (mark.offer.type === 'bungalo') {
+    houseType = 'Бунгало';
+  }
+
+  addCardType.textContent = houseType;
+  return addCard;
+};
+
 markersBlock.appendChild(getFragment(getAdArray(QUANTITY_OFFERS)));
+map.insertBefore(renderAddCard(addArray[0]), filtersContainer);
 
 // Скрываем приветствие
 
