@@ -15,7 +15,7 @@ var rooms = [1, 2, 3, 4, 5];
 var guests = [1, 2, 3, 4, 5, 6];
 var times = ['12:00', '13:00', '14:00'];
 var features = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
-var descriptions = ['Свобно, стильно современно', 'Шикарный вид из окна', 'Рядом с центром города'];
+var descriptions = ['Свободно, стильно современно', 'Шикарный вид из окна', 'Рядом с центром города'];
 var photos = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
 
 // Константы
@@ -140,14 +140,20 @@ var renderAddCard = function (mark) {
   var addCardType = addCard.querySelector('.popup__type');
   var addCardCapacity = addCard.querySelector('.popup__text--capacity');
   var addCardTime = addCard.querySelector('.popup__text--time');
+  var addCardFeatures = addCard.querySelector('.popup__features');
+  var addCardFeature = addCard.querySelectorAll('.popup__feature');
+  var addCardDescription = addCard.querySelector('.popup__description');
+  var addCardPhotos = addCard.querySelector('.popup__photos');
+  var addCardPhoto = addCardPhotos.querySelector('.popup__photo');
   var houseType = '';
 
   addCardTitle.textContent = mark.offer.title;
   addCardAddress.textContent = mark.offer.address;
   addCardType.textConten = mark.offer.type;
   addCardPrice.textContent = mark.offer.price + '₽/ночь';
-  addCardCapacity.textContent = mark.offer.rooms + mark.offer.guests;
-  addCardTime.textContent = mark.offer.checkin + mark.offer.checkout;
+  addCardTime.textContent = 'Заезд после ' + mark.offer.checkin + ', выезд до ' + mark.offer.checkout;
+  addCardPhoto.src = mark.offer.photos[0];
+
 
   // Выбираем тип жилья
   if (mark.offer.type === 'palace') {
@@ -161,6 +167,30 @@ var renderAddCard = function (mark) {
   }
 
   addCardType.textContent = houseType;
+
+  // Добавляем количество комнат и гостей + склоняем
+  var roomText = ' комната';
+  if (mark.offer.rooms > 1 && mark.offer.rooms < 5) {
+    roomText = ' комнаты';
+  } else if (mark.offer.rooms >= 5) {
+    roomText = ' комнат';
+  }
+
+  var guestsText = ' гостей';
+  if (mark.offer.guests === 1) {
+    guestsText = ' гостя';
+  }
+
+  addCardCapacity.textContent = mark.offer.rooms + roomText + ' для ' + mark.offer.guests + guestsText;
+
+  // Удаляем лишние особенности
+
+  for (var i = addCardFeature.length - 1; i >= mark.offer.features.length; i--) {
+    addCardFeatures.removeChild(addCardFeature[i]);
+  }
+
+  addCardDescription.textContent = mark.offer.description;
+
   return addCard;
 };
 
