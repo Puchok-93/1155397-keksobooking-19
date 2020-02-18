@@ -8,21 +8,20 @@ var pin = markersTemplate.querySelector('.map__pin');
 var addCardTemplate = document.querySelector('#card').content.querySelector('.map__card');
 var filtersContainer = map.querySelector('.map__filters-container');
 
-// Массивы данных
-
-var housings = ['palace', 'flat', 'house', 'bungalo'];
-var rooms = [1, 2, 3, 4, 5];
-var guests = [1, 2, 3, 4, 5, 6];
-var times = ['12:00', '13:00', '14:00'];
-var features = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
-var descriptions = ['Свободно, стильно современно', 'Шикарный вид из окна', 'Рядом с центром города'];
-var photos = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
-
 // Константы
+var TYPES = ['palace', 'flat', 'house', 'bungalo'];
+var TIMES = ['12:00', '13:00', '14:00'];
+var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
+var DESCRIPTIONS = ['Свободно, стильно современно', 'Шикарный вид из окна', 'Рядом с центром города'];
+var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
 var HEIGTH_PIN = 70;
 var HALF_WIDTH_PIN = 25;
 var MIN_PRICE = 1000;
 var MAX_PRICE = 20000;
+var MIN_ROOMS = 1;
+var MAX_ROOMS = 5;
+var MIN_GUESTS = 1;
+var MAX_GUESTS = 6;
 var QUANTITY_OFFERS = 8; // Количество выводимых элементов на страницу
 var LOCATION_Y_MIN = 130;
 var LOCATION_Y_MAX = 630;
@@ -76,14 +75,14 @@ var getRandomOffer = function (index) {
       title: 'Заголовок объявления',
       adress: location.x + ',' + location.y,
       price: getRandomNumber(MIN_PRICE, MAX_PRICE),
-      type: getRandomElement(housings),
-      rooms: getRandomElement(rooms),
-      guests: getRandomElement(guests),
-      checkin: getRandomElement(times),
-      checkout: getRandomElement(times),
-      features: cutArray(mixArray(features)),
-      description: getRandomElement(descriptions),
-      photos: cutArray(photos)
+      type: getRandomElement(TYPES),
+      rooms: getRandomNumber(MIN_ROOMS, MAX_ROOMS),
+      guests: getRandomNumber(MIN_GUESTS, MAX_GUESTS),
+      checkin: getRandomElement(TIMES),
+      checkout: getRandomElement(TIMES),
+      features: cutArray(mixArray(FEATURES)),
+      description: getRandomElement(DESCRIPTIONS),
+      photos: cutArray(PHOTOS)
     },
 
     location: {
@@ -105,7 +104,7 @@ var getAdArray = function (number) {
   return ads;
 };
 
-var addArray = getAdArray(QUANTITY_OFFERS);
+var addArrays = getAdArray(QUANTITY_OFFERS);
 
 // Клонируем маркеры
 
@@ -134,26 +133,27 @@ var getFragment = function (array) {
 var renderAddCard = function (mark) {
   var addCard = addCardTemplate.cloneNode(true);
 
+  var addCardAvatar = addCard.querySelector('.popup__avatar');
   var addCardTitle = addCard.querySelector('.popup__title');
   var addCardAddress = addCard.querySelector('.popup__text--address');
   var addCardPrice = addCard.querySelector('.popup__text--price');
   var addCardType = addCard.querySelector('.popup__type');
   var addCardCapacity = addCard.querySelector('.popup__text--capacity');
   var addCardTime = addCard.querySelector('.popup__text--time');
-  var addCardFeatures = addCard.querySelector('.popup__features');
-  var addCardFeature = addCard.querySelectorAll('.popup__feature');
+  var addCardFeatureList = addCard.querySelector('.popup__features');
+  var addCardFeatureItem = addCard.querySelectorAll('.popup__feature');
   var addCardDescription = addCard.querySelector('.popup__description');
-  var addCardPhotos = addCard.querySelector('.popup__photos');
-  var addCardPhoto = addCardPhotos.querySelector('.popup__photo');
+  var addCardPhotosBlock = addCard.querySelector('.popup__photos');
+  var addCardPhoto = addCardPhotosBlock.querySelector('.popup__photo');
   var houseType = '';
 
+  addCardAvatar.src = mark.author.avatar;
   addCardTitle.textContent = mark.offer.title;
   addCardAddress.textContent = mark.offer.address;
-  addCardType.textConten = mark.offer.type;
+  addCardType.textContent = mark.offer.type;
   addCardPrice.textContent = mark.offer.price + '₽/ночь';
   addCardTime.textContent = 'Заезд после ' + mark.offer.checkin + ', выезд до ' + mark.offer.checkout;
-  addCardPhoto.src = mark.offer.photos[0];
-
+  addCardDescription.textContent = mark.offer.description;
 
   // Выбираем тип жилья
   if (mark.offer.type === 'palace') {
@@ -185,17 +185,60 @@ var renderAddCard = function (mark) {
 
   // Удаляем лишние особенности
 
-  for (var i = addCardFeature.length - 1; i >= mark.offer.features.length; i--) {
-    addCardFeatures.removeChild(addCardFeature[i]);
+  var addCardwifiIcon = addCard.querySelector('.popup__feature--wifi');
+  var addCarddishwasherIcon = addCard.querySelector('.popup__feature--dishwasher');
+  var addCardparkingIcon = addCard.querySelector('.popup__feature--parking');
+  var addCardwasherIcon = addCard.querySelector('.popup__feature--washer');
+  var addCardelevatorIcon = addCard.querySelector('.popup__feature--elevator');
+  var addCardconditionerIcon = addCard.querySelector('.popup__feature--conditioner');
+
+  for (var x = 0; x < addCardFeatureItem.length; x++) {
+    addCardFeatureItem[x].remove();
   }
 
-  addCardDescription.textContent = mark.offer.description;
+  for (var y = 0; y < mark.offer.features.length; y++) {
+
+    switch (mark.offer.features[y]) {
+      case 'wifi':
+        addCardFeatureList.append(addCardwifiIcon);
+        break;
+
+      case 'dishwasher':
+        addCardFeatureList.append(addCarddishwasherIcon);
+        break;
+
+      case 'parking':
+        addCardFeatureList.append(addCardparkingIcon);
+        break;
+
+      case 'washer':
+        addCardFeatureList.append(addCardwasherIcon);
+        break;
+
+      case 'elevator':
+        addCardFeatureList.append(addCardelevatorIcon);
+        break;
+
+      case 'conditioner':
+        addCardFeatureList.append(addCardconditionerIcon);
+        break;
+    }
+  }
+
+  addCardPhoto.src = mark.offer.photos[0];
+  if (mark.offer.photos.length > 1) {
+    for (var j = 1; j < mark.offer.photos.length; j++) {
+      var newCardPhoto = addCardPhoto.cloneNode(false);
+      addCardPhotosBlock.appendChild(newCardPhoto);
+      newCardPhoto.src = mark.offer.photos[j];
+    }
+  }
 
   return addCard;
 };
 
 markersBlock.appendChild(getFragment(getAdArray(QUANTITY_OFFERS)));
-map.insertBefore(renderAddCard(addArray[0]), filtersContainer);
+map.insertBefore(renderAddCard(addArrays[0]), filtersContainer);
 
 // Скрываем приветствие
 
