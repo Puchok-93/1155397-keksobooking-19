@@ -2,11 +2,21 @@
 
 var map = document.querySelector('.map');
 var markersBlock = map.querySelector('.map__pins');
+var markerMain = markersBlock.querySelector('.map__pin--main');
 var markersTemplate = document.querySelector('#pin').content;
 var locationXMax = map.offsetWidth - 25;
 var pin = markersTemplate.querySelector('.map__pin');
-var addCardTemplate = document.querySelector('#card').content.querySelector('.map__card');
+/* var addCardTemplate = document.querySelector('#card').content.querySelector('.map__card');*/
+
+var addCardForm = document.querySelector('.ad-form');
+var addCardFormFieldsets = addCardForm.querySelectorAll('fieldset');
 var filtersContainer = map.querySelector('.map__filters-container');
+var mapFilters = filtersContainer.querySelector('.map__filters');
+var mapFeatures = filtersContainer.querySelector('.map__features');
+
+var addCardGuests = addCardForm.querySelector('#capacity');
+var addCardRooms = addCardForm.querySelector('#room_number');
+var addCardAddress = addCardForm.querySelector('#address');
 
 // Константы
 var TYPES = ['palace', 'flat', 'house', 'bungalo'];
@@ -15,6 +25,7 @@ var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditio
 var DESCRIPTIONS = ['Свободно, стильно современно', 'Шикарный вид из окна', 'Рядом с центром города'];
 var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
 var HEIGTH_PIN = 70;
+var WIDTH_PIN = 50;
 var HALF_WIDTH_PIN = 25;
 var MIN_PRICE = 1000;
 var MAX_PRICE = 20000;
@@ -26,6 +37,8 @@ var QUANTITY_OFFERS = 8; // Количество выводимых элемен
 var LOCATION_Y_MIN = 130;
 var LOCATION_Y_MAX = 630;
 var LOCATION_X_MIN = 25;
+var MOUSE_LB = 0;
+var ENTER_KEY = 'Enter';
 
 // -----------------------Генерация случайных элементов ----------------------------------- \\
 
@@ -127,7 +140,7 @@ var getFragment = function (array) {
 
   return fragment;
 };
-
+/*
 // Создание карточки объявления
 
 var renderAddCard = function (mark) {
@@ -239,7 +252,65 @@ var renderAddCard = function (mark) {
 
 markersBlock.appendChild(getFragment(getAdArray(QUANTITY_OFFERS)));
 map.insertBefore(renderAddCard(addArrays[0]), filtersContainer);
+*/
 
-// Скрываем приветствие
+var disableInputs = function (arrayInputs) {
+  for (var i = 0; i < arrayInputs.length; i++) {
+    arrayInputs[i].setAttribute('disabled', true);
+  }
+};
 
-map.classList.remove('map--faded');
+var enableInputs = function (arrayInputs) {
+  for (var i = 0; i < arrayInputs.length; i++) {
+    arrayInputs[i].removeAttribute('disabled');
+  }
+};
+
+var deactivatePage = function () {
+  disableInputs(addCardFormFieldsets);
+  disableInputs(mapFilters);
+  disableInputs(mapFeatures);
+};
+
+var activatePage = function () {
+  map.classList.remove('map--faded');
+  markersBlock.appendChild(getFragment(addArrays));
+  addCardForm.classList.remove('ad-form--disabled');
+  enableInputs(addCardFormFieldsets);
+  enableInputs(mapFilters);
+  enableInputs(mapFeatures);
+  addCardGuests.value = 1;
+  addCardAddress.value = (markerMain.offsetLeft + Math.floor(WIDTH_PIN / 2)) + ', ' + (markerMain.offsetTop + HEIGTH_PIN);
+};
+
+var onPinMainMousedown = function (evt) {
+  if (evt.button === MOUSE_LB) {
+    activatePage();
+  }
+};
+
+var onPinMainEnterPress = function (evt) {
+  if (evt.key === ENTER_KEY) {
+    activatePage();
+  }
+};
+
+var onRoomGuestsCapacityChange = function () {
+  addCardGuests.setCustomValidity('');
+
+  if (addCardRooms.value < addCardGuests.value) {
+    addCardGuests.setCustomValidity('Количество гостей превышает спальных мест. Увеличьте количество комнат.');
+  }
+
+  if (addCardRooms.value === '100' && addCardGuests.value !== '0') {
+    addCardGuests.setCustomValidity('100 комнат? Серьезно?');
+  }
+
+};
+
+deactivatePage();
+
+markerMain.addEventListener('mousedown', onPinMainMousedown);
+markerMain.addEventListener('keydown', onPinMainEnterPress);
+addCardGuests.addEventListener('change', onRoomGuestsCapacityChange);
+addCardRooms.addEventListener('change', onRoomGuestsCapacityChange);
