@@ -17,6 +17,10 @@ var mapFeatures = filtersContainer.querySelector('.map__features');
 var addCardGuests = addCardForm.querySelector('#capacity');
 var addCardRooms = addCardForm.querySelector('#room_number');
 var addCardAddress = addCardForm.querySelector('#address');
+var addCardType = addCardForm.querySelector('#type');
+var addCardPrice = addCardForm.querySelector('#price');
+var addCardTimein = addCardForm.querySelector('#timein');
+var addCardTimeout = addCardForm.querySelector('#timeout');
 
 // Константы
 var TYPES = ['palace', 'flat', 'house', 'bungalo'];
@@ -280,6 +284,8 @@ var activatePage = function () {
   enableInputs(mapFilters);
   enableInputs(mapFeatures);
   addCardGuests.value = 1;
+  addCardType.value = 'bungalo';
+  addCardPrice.placeholder = 0;
   addCardAddress.value = (markerMain.offsetLeft + Math.floor(WIDTH_PIN / 2)) + ', ' + (markerMain.offsetTop + HEIGTH_PIN);
 };
 
@@ -305,7 +311,38 @@ var onRoomGuestsCapacityChange = function () {
   if (addCardRooms.value === '100' && addCardGuests.value !== '0') {
     addCardGuests.setCustomValidity('100 комнат? Серьезно?');
   }
+};
 
+var onCheckTimeinChange = function () {
+  addCardTimeout.value = addCardTimein.value;
+};
+
+var onCheckTimeoutChange = function () {
+  addCardTimein.value = addCardTimeout.value;
+};
+
+var onTypeHouseChange = function () {
+  switch (addCardType.value) {
+    case 'bungalo':
+      addCardPrice.setAttribute('min', 0);
+      addCardPrice.placeholder = 0;
+      break;
+
+    case 'flat':
+      addCardPrice.setAttribute('min', 1000);
+      addCardPrice.placeholder = 1000;
+      break;
+
+    case 'house':
+      addCardPrice.setAttribute('min', 5000);
+      addCardPrice.placeholder = 5000;
+      break;
+
+    case 'palace':
+      addCardPrice.setAttribute('min', 10000);
+      addCardPrice.placeholder = 10000;
+      break;
+  }
 };
 
 deactivatePage();
@@ -314,3 +351,6 @@ markerMain.addEventListener('mousedown', onPinMainMousedown);
 markerMain.addEventListener('keydown', onPinMainEnterPress);
 addCardGuests.addEventListener('change', onRoomGuestsCapacityChange);
 addCardRooms.addEventListener('change', onRoomGuestsCapacityChange);
+addCardType.addEventListener('change', onTypeHouseChange);
+addCardTimein.addEventListener('change', onCheckTimeinChange);
+addCardTimeout.addEventListener('change', onCheckTimeoutChange);
