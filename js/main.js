@@ -269,20 +269,27 @@ var renderPopupCard = function (mark) {
 // ---------------------------------------------- Управление объявлениями ----------------------------------------------------------
 
 // Показ объяввления
-var openPopupCardHandler = function () {
+
+var onOpenCardPinClick = function () {
   var pins = document.querySelectorAll('.map__pin:not(.map__pin--main)');
-  var activePin = map.querySelector('.map__pin--active');
 
   pins.forEach(function (element, index) {
     element.addEventListener('click', function () {
+      var isActivePin = document.querySelector('.map__pin--active');
+
+      if (isActivePin) {
+        isActivePin.classList.remove('map__pin--active');
+      }
+
       element.classList.add('map__pin--active');
 
-      if (activePin) {
-        element.classList.remove('map__pin--active');
+      var isElement = document.querySelector('.map__card');
+      if (isElement) {
+        isElement.remove();
       }
 
       map.insertBefore(renderPopupCard(advertsArray[index]), filtersContainer);
-      closePopupCardHandler();
+      onСloseButtonPopupCardClick();
     });
   });
 };
@@ -290,7 +297,7 @@ var openPopupCardHandler = function () {
 
 // Закрытие объявления
 
-var closePopupCardHandler = function () {
+var onСloseButtonPopupCardClick = function () {
   var popup = document.querySelector('.map__card');
   var popupClose = popup.querySelector('.popup__close');
 
@@ -332,7 +339,7 @@ var activatePage = function () {
   map.classList.remove('map--faded');
   markersBlock.appendChild(getFragment(advertsArray));
   addCardForm.classList.remove('ad-form--disabled');
-  openPopupCardHandler();
+  onOpenCardPinClick();
   enableInputs(addCardFormFieldsets);
   enableInputs(mapFilters);
   enableInputs(mapFeatures);
