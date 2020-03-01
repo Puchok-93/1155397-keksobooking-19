@@ -22,12 +22,22 @@ var LOCATION_Y_MAX = 630;
 var LOCATION_X_MIN = 25;
 var MOUSE_LB = 0;
 var ENTER_KEY = 'Enter';
+var ESC_KEY = 'Escape';
+
+var MIN_FLAT_PRICE = 1000;
+var MIN_HOUSE_PRICE = 5000;
+var MIN_PALACE_PRICE = 10000;
+
+var BUNGALO = 'bungalo';
+var FLAT = 'flat';
+var HOUSE = 'house';
+var PALACE = 'palace';
 
 var map = document.querySelector('.map');
 var markersBlock = map.querySelector('.map__pins');
 var markerMain = markersBlock.querySelector('.map__pin--main');
 var markersTemplate = document.querySelector('#pin').content;
-var locationXMax = map.offsetWidth - 25;
+var locationXMax = map.offsetWidth - HALF_WIDTH_PIN;
 var pin = markersTemplate.querySelector('.map__pin');
 var addCardTemplate = document.querySelector('#card').content.querySelector('.map__card');
 
@@ -123,7 +133,7 @@ var getAdArray = function (number) {
   return ads;
 };
 
-var addArrays = getAdArray(QUANTITY_OFFERS);
+var advertsArray = getAdArray(QUANTITY_OFFERS);
 
 // Клонируем маркеры
 
@@ -211,13 +221,13 @@ var renderPopupCard = function (mark) {
   var popupDelevatorIcon = popupCard.querySelector('.popup__feature--elevator');
   var popupConditionerIcon = popupCard.querySelector('.popup__feature--conditioner');
 
-  for (var x = 0; x < popupFeatureItem.length; x++) {
-    popupFeatureItem[x].remove();
+  for (var i = 0; i < popupFeatureItem.length; i++) {
+    popupFeatureItem[i].remove();
   }
 
-  for (var y = 0; y < mark.offer.features.length; y++) {
+  for (i = 0; i < mark.offer.features.length; i++) {
 
-    switch (mark.offer.features[y]) {
+    switch (mark.offer.features[i]) {
       case 'wifi':
         popupFeatureList.append(popupWifiIcon);
         break;
@@ -259,30 +269,41 @@ var renderPopupCard = function (mark) {
 // ---------------------------------------------- Управление объявлениями ----------------------------------------------------------
 
 // Показ объяввления
-var openPopupCard = function () {
+var openPopupCardHandler = function () {
   var pins = document.querySelectorAll('.map__pin:not(.map__pin--main)');
+  var activePin = map.querySelector('.map__pin--active');
+
   pins.forEach(function (element, index) {
     element.addEventListener('click', function () {
-      var isElement = document.querySelector('.map__card');
-      if (isElement) {
-        isElement.remove();
+      element.classList.add('map__pin--active');
+
+      if (activePin) {
+        element.classList.remove('map__pin--active');
       }
-      map.insertBefore(renderPopupCard(addArrays[index]), filtersContainer);
-      closePopupCard();
+
+      map.insertBefore(renderPopupCard(advertsArray[index]), filtersContainer);
+      closePopupCardHandler();
     });
   });
 };
 
+
 // Закрытие объявления
-var closePopupCard = function () {
+
+var closePopupCardHandler = function () {
   var popup = document.querySelector('.map__card');
   var popupClose = popup.querySelector('.popup__close');
 
   popupClose.addEventListener('click', function () {
     popup.remove();
   });
-};
 
+  document.addEventListener('keydown', function (evt) {
+    if (evt.key === ESC_KEY) {
+      popup.remove();
+    }
+  });
+};
 // ---------------------------------------------- Деактивация страницы ----------------------------------------------------------
 
 var disableInputs = function (arrayInputs) {
@@ -309,15 +330,15 @@ deactivatePage();
 
 var activatePage = function () {
   map.classList.remove('map--faded');
-  markersBlock.appendChild(getFragment(addArrays));
+  markersBlock.appendChild(getFragment(advertsArray));
   addCardForm.classList.remove('ad-form--disabled');
-  openPopupCard();
+  openPopupCardHandler();
   enableInputs(addCardFormFieldsets);
   enableInputs(mapFilters);
   enableInputs(mapFeatures);
   addCardGuests.value = 1;
-  addCardType.value = 'bungalo';
-  addCardPrice.placeholder = 0;
+  addCardType.value = 'flat';
+  addCardPrice.placeholder = 1000;
   addCardAddress.value = (markerMain.offsetLeft + Math.floor(WIDTH_PIN / 2)) + ', ' + (markerMain.offsetTop + HEIGTH_PIN);
 };
 
@@ -357,24 +378,24 @@ var onCheckTimeoutChange = function () {
 
 var onTypeHouseChange = function () {
   switch (addCardType.value) {
-    case 'bungalo':
+    case BUNGALO:
       addCardPrice.setAttribute('min', 0);
       addCardPrice.placeholder = 0;
       break;
 
-    case 'flat':
-      addCardPrice.setAttribute('min', 1000);
-      addCardPrice.placeholder = 1000;
+    case FLAT:
+      addCardPrice.setAttribute('min', MIN_FLAT_PRICE);
+      addCardPrice.placeholder = MIN_FLAT_PRICE;
       break;
 
-    case 'house':
-      addCardPrice.setAttribute('min', 5000);
-      addCardPrice.placeholder = 5000;
+    case HOUSE:
+      addCardPrice.setAttribute('min', MIN_HOUSE_PRICE);
+      addCardPrice.placeholder = MIN_HOUSE_PRICE;
       break;
 
-    case 'palace':
-      addCardPrice.setAttribute('min', 10000);
-      addCardPrice.placeholder = 10000;
+    case PALACE:
+      addCardPrice.setAttribute('min', MIN_PALACE_PRICE);
+      addCardPrice.placeholder = MIN_PALACE_PRICE;
       break;
   }
 };
