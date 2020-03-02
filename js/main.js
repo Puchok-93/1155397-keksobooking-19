@@ -33,12 +33,15 @@ var FLAT = 'flat';
 var HOUSE = 'house';
 var PALACE = 'palace';
 
+var GUESTS_DEFAULT = 1;
+
 var map = document.querySelector('.map');
 var markersBlock = map.querySelector('.map__pins');
-var markerMain = markersBlock.querySelector('.map__pin--main');
+var mainPin = markersBlock.querySelector('.map__pin--main');
 var markersTemplate = document.querySelector('#pin').content;
 var locationXMax = map.offsetWidth - HALF_WIDTH_PIN;
 var pin = markersTemplate.querySelector('.map__pin');
+var activePin = document.querySelector('.map__pin--active');
 var addCardTemplate = document.querySelector('#card').content.querySelector('.map__card');
 
 var addCardForm = document.querySelector('.ad-form');
@@ -133,7 +136,7 @@ var getAdArray = function (number) {
   return ads;
 };
 
-var advertsArray = getAdArray(QUANTITY_OFFERS);
+var adverts = getAdArray(QUANTITY_OFFERS);
 
 // Клонируем маркеры
 
@@ -261,56 +264,68 @@ var renderPopupCard = function (mark) {
       popupPhotosBlock.appendChild(newCardPhoto);
       newCardPhoto.src = mark.offer.photos[j];
     }
+  } else if (mark.offer.photos.length < 1) {
+    popupPhotosBlock.style.display = 'none';
   }
 
   return popupCard;
 };
 
 // ---------------------------------------------- Управление объявлениями ----------------------------------------------------------
-
 // Показ объяввления
-
-var onOpenCardPinClick = function () {
+var setPinsHandlers = function () {
   var pins = document.querySelectorAll('.map__pin:not(.map__pin--main)');
 
   pins.forEach(function (element, index) {
     element.addEventListener('click', function () {
-      var isActivePin = document.querySelector('.map__pin--active');
+      activePin = document.querySelector('.map__pin--active');
 
-      if (isActivePin) {
-        isActivePin.classList.remove('map__pin--active');
+      if (activePin) {
+        activePin.classList.remove('map__pin--active');
       }
 
       element.classList.add('map__pin--active');
 
-      var isElement = document.querySelector('.map__card');
-      if (isElement) {
-        isElement.remove();
+      var card = document.querySelector('.map__card');
+      if (card) {
+        card.remove();
       }
 
-      map.insertBefore(renderPopupCard(advertsArray[index]), filtersContainer);
-      onСloseButtonPopupCardClick();
+      map.insertBefore(renderPopupCard(adverts[index]), filtersContainer);
+      closePopup();
     });
   });
 };
 
 
 // Закрытие объявления
-
-var onСloseButtonPopupCardClick = function () {
+var closePopup = function () {
   var popup = document.querySelector('.map__card');
   var popupClose = popup.querySelector('.popup__close');
 
-  popupClose.addEventListener('click', function () {
-    popup.remove();
-  });
-
-  document.addEventListener('keydown', function (evt) {
-    if (evt.key === ESC_KEY) {
-      popup.remove();
-    }
-  });
+  popupClose.addEventListener('click', onCloseButtonClick);
+  document.addEventListener('keydown', onEscButtonKeydown);
 };
+
+var onCloseButtonClick = function () {
+  var popup = document.querySelector('.map__card');
+  var popupClose = popup.querySelector('.popup__close');
+  activePin = document.querySelector('.map__pin--active');
+  popup.remove();
+  activePin.classList.remove('map__pin--active');
+  popupClose.removeEventListener('click', onCloseButtonClick);
+};
+
+var onEscButtonKeydown = function (evt) {
+  if (evt.key === ESC_KEY) {
+    var popup = document.querySelector('.map__card');
+    activePin = document.querySelector('.map__pin--active');
+    popup.remove();
+    activePin.classList.remove('map__pin--active');
+    document.removeEventListener('keydown', onEscButtonKeydown);
+  }
+};
+
 // ---------------------------------------------- Деактивация страницы ----------------------------------------------------------
 
 var disableInputs = function (arrayInputs) {
@@ -337,29 +352,41 @@ deactivatePage();
 
 var activatePage = function () {
   map.classList.remove('map--faded');
-  markersBlock.appendChild(getFragment(advertsArray));
+  markersBlock.appendChild(getFragment(adverts));
   addCardForm.classList.remove('ad-form--disabled');
-  onOpenCardPinClick();
+  setPinsHandlers();
   enableInputs(addCardFormFieldsets);
   enableInputs(mapFilters);
   enableInputs(mapFeatures);
-  addCardGuests.value = 1;
-  addCardType.value = 'flat';
-  addCardPrice.placeholder = 1000;
-  addCardAddress.value = (markerMain.offsetLeft + Math.floor(WIDTH_PIN / 2)) + ', ' + (markerMain.offsetTop + HEIGTH_PIN);
+  addCardGuests.value = GUESTS_DEFAULT;
+  addCardType.value = FLAT;
+  addCardPrice.value = 5000;
+  addCardAddress.value = (mainPin.offsetLeft + Math.floor(WIDTH_PIN / 2)) + ', ' + (mainPin.offsetTop + HEIGTH_PIN);
+  addCardGuests.addEventListener('change', onRoomGuestsCapacityChange);
+  addCardRooms.addEventListener('change', onRoomGuestsCapacityChange);
+  addCardType.addEventListener('change', onTypeHouseChange);
+  addCardTimein.addEventListener('change', onCheckTimeinChange);
+  addCardTimeout.addEventListener('change', onCheckTimeoutChange);
 };
 
-var onPinMainMousedown = function (evt) {
+var onMainPinMousedown = function (evt) {
   if (evt.button === MOUSE_LB) {
     activatePage();
+    mainPin.removeEventListener('mousedown', onMainPinMousedown);
+    mainPin.removeEventListener('keydown', onMainPinEnterPress);
   }
 };
 
-var onPinMainEnterPress = function (evt) {
+var onMainPinEnterPress = function (evt) {
   if (evt.key === ENTER_KEY) {
     activatePage();
+    mainPin.removeEventListener('mousedown', onMainPinMousedown);
+    mainPin.removeEventListener('keydown', onMainPinEnterPress);
   }
 };
+
+mainPin.addEventListener('mousedown', onMainPinMousedown);
+mainPin.addEventListener('keydown', onMainPinEnterPress);
 
 // ---------------------------------------------- Валидация формы ----------------------------------------------------------
 
@@ -406,13 +433,3 @@ var onTypeHouseChange = function () {
       break;
   }
 };
-
-// ---------------------------------------------- Добавление обработчиков событий ----------------------------------------------------------
-
-markerMain.addEventListener('mousedown', onPinMainMousedown);
-markerMain.addEventListener('keydown', onPinMainEnterPress);
-addCardGuests.addEventListener('change', onRoomGuestsCapacityChange);
-addCardRooms.addEventListener('change', onRoomGuestsCapacityChange);
-addCardType.addEventListener('change', onTypeHouseChange);
-addCardTimein.addEventListener('change', onCheckTimeinChange);
-addCardTimeout.addEventListener('change', onCheckTimeoutChange);
