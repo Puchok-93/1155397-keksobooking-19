@@ -28,7 +28,7 @@
       popupTime.textContent = 'Заезд после ' + mark.offer.checkin + ', выезд до ' + mark.offer.checkout;
       popupDescription.textContent = mark.offer.description;
 
-      // Выбираем тип жилья
+      // --------------------------------- Выбираем тип жилья ---------------------------------
       if (mark.offer.type === window.constants.PALACE) {
         houseType = 'Дворец';
       } else if (mark.offer.type === window.constants.FLAT) {
@@ -40,7 +40,8 @@
       }
 
       popupType.textContent = houseType;
-      // Добавляем количество комнат и гостей + склоняем
+
+      // --------------------------------- Добавляем количество комнат и гостей + склоняем ---------------------------------
       var roomText = ' комната';
       if (mark.offer.rooms > 1 && mark.offer.rooms < 5) {
         roomText = ' комнаты';

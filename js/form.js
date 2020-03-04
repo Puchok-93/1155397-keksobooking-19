@@ -7,8 +7,6 @@
 
   var addCardForm = document.querySelector('.ad-form');
   var addCardFormFieldsets = addCardForm.querySelectorAll('fieldset');
-  var mapFilters = map.querySelector('.map__filters');
-  var mapFeatures = map.querySelector('.map__features');
 
   var addCardGuests = addCardForm.querySelector('#capacity');
   var addCardRooms = addCardForm.querySelector('#room_number');
@@ -22,23 +20,8 @@
     addCardAddress.value = (mainPin.offsetLeft + Math.floor(window.constants.WIDTH_PIN / 2)) + ', ' + (mainPin.offsetTop + window.constants.HEIGTH_PIN);
   };
 
-  var disableInputs = function (arrayInputs) {
-    for (var i = 0; i < arrayInputs.length; i++) {
-      arrayInputs[i].setAttribute('disabled', true);
-    }
-  };
-
-  var enableInputs = function (arrayInputs) {
-    for (var i = 0; i < arrayInputs.length; i++) {
-      arrayInputs[i].removeAttribute('disabled');
-    }
-  };
-
-  var deactivatePage = function () {
-    disableInputs(addCardFormFieldsets);
-    disableInputs(mapFilters);
-    disableInputs(mapFeatures);
-  };
+  getAddress();
+  // --------------------------------- Валидация формы ---------------------------------
 
   var onRoomGuestsCapacityChange = function () {
     addCardGuests.setCustomValidity('');
@@ -84,6 +67,8 @@
     }
   };
 
+  // --------------------------------- ОБработчики событий ---------------------------------
+
   addCardGuests.addEventListener('change', onRoomGuestsCapacityChange);
   addCardRooms.addEventListener('change', onRoomGuestsCapacityChange);
   addCardType.addEventListener('change', onTypeHouseChange);
@@ -91,11 +76,6 @@
   addCardTimeout.addEventListener('change', onCheckTimeoutChange);
 
   window.form = {
-    // активация всех инпутов
-    enableAllInputs: function () {
-      enableInputs(addCardFormFieldsets);
-      enableInputs(mapFilters);
-      enableInputs(mapFeatures);
-    }
+    addCardFormFieldsets: addCardFormFieldsets
   };
 })();
