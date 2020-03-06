@@ -76,6 +76,7 @@
   addCardTimeout.addEventListener('change', onCheckTimeoutChange);
 
   window.form = {
-    addCardFormFieldsets: addCardFormFieldsets
+    addCardFormFieldsets: addCardFormFieldsets,
+    addCardAddress: addCardAddress
   };
 })();
