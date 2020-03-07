@@ -20,14 +20,16 @@
     var fragment = document.createDocumentFragment();
 
     for (var i = 0; i < array.length; i++) {
-      fragment.appendChild(window.pin.renderPin(array[i]));
+      var pin = window.pin.renderPin(array[i]);
+      fragment.appendChild(pin);
     }
 
-    return fragment;
+    pinsBlock.appendChild(fragment);
+    setPinsHandlers(array);
   };
 
   // ---------------------------------Показ объяввления---------------------------------
-  var setPinsHandlers = function () {
+  var setPinsHandlers = function (array) {
     var pins = document.querySelectorAll('.map__pin:not(.map__pin--main)');
 
     pins.forEach(function (element, index) {
@@ -45,7 +47,7 @@
           card.remove();
         }
 
-        map.insertBefore(window.card.renderPopupCard(window.data.adverts[index]), filtersContainer);
+        map.insertBefore(window.card.renderPopupCard(array[index]), filtersContainer);
         closePopup();
       });
     });
@@ -87,8 +89,7 @@
   var activatePage = function () {
     map.classList.remove('map--faded');
     addCardForm.classList.remove('ad-form--disabled');
-
-    pinsBlock.appendChild(createPinsBlock(window.data.adverts));
+    window.backend.load(createPinsBlock);
     setPinsHandlers();
     enableInputs(addCardFormFieldsets);
     enableInputs(mapFilters);
