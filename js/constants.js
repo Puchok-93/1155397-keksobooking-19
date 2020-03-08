@@ -37,6 +37,9 @@
   var MAIN_PIN_WIDTH = 50;
   var MAIN_PIN_HEIGHT = 50;
 
+  var GET = 'GET';
+  var POST = 'POST';
+
   window.constants = {
     TYPES: TYPES,
     TIMES: TIMES,
@@ -74,6 +77,9 @@
     GUESTS_DEFAULT: GUESTS_DEFAULT,
 
     MAIN_PIN_WIDTH: MAIN_PIN_WIDTH,
-    MAIN_PIN_HEIGHT: MAIN_PIN_HEIGHT
+    MAIN_PIN_HEIGHT: MAIN_PIN_HEIGHT,
+
+    GET: GET,
+    POST: POST,
   };
 })();
