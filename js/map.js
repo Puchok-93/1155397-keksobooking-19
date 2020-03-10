@@ -13,6 +13,7 @@
   var addCardGuests = addCardForm.querySelector('#capacity');
   var addCardType = addCardForm.querySelector('#type');
   var addCardPrice = addCardForm.querySelector('#price');
+  var resetButton = addCardForm.querySelector('.ad-form__reset');
 
   // ---------------------------------Создаем фрагмент ---------------------------------
 
@@ -76,13 +77,37 @@
     }
   };
 
+  // Удаляем метки с карты
+
+  var removePins = function () {
+    var pins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
+    var openedCard = document.querySelector('.map__card');
+
+    pins.forEach(function (element) {
+      element.remove();
+    });
+
+    if (openedCard) {
+      openedCard.remove();
+    }
+  };
+
+  // Деактивируем страницу
+
   var deactivatePage = function () {
+    map.classList.add('map--faded');
+    addCardForm.classList.add('ad-form--disabled');
     disableInputs(addCardFormFieldsets);
     disableInputs(mapFilters);
     disableInputs(mapFeatures);
+    removePins();
   };
 
-  deactivatePage();
+  var activeInputs = function () {
+    enableInputs(addCardFormFieldsets);
+    enableInputs(mapFilters);
+    enableInputs(mapFeatures);
+  };
 
   // ---------------------------------Активация страницы---------------------------------
 
@@ -91,12 +116,12 @@
     addCardForm.classList.remove('ad-form--disabled');
     window.backend.load(createPinsBlock);
     setPinsHandlers();
-    enableInputs(addCardFormFieldsets);
-    enableInputs(mapFilters);
-    enableInputs(mapFeatures);
     addCardGuests.value = window.constants.GUESTS_DEFAULT;
     addCardType.value = window.constants.FLAT;
     addCardPrice.value = window.constants.MIN_FLAT_PRICE;
+    addCardForm.addEventListener('submit', onFormSubmit);
+    resetButton.addEventListener('click', onResetClick);
+    activeInputs();
   };
 
   // ---------------------------------Обработчики событий ---------------------------------
@@ -134,6 +159,27 @@
       mainPin.removeEventListener('mousedown', onMainPinMousedown);
       mainPin.removeEventListener('keydown', onMainPinEnterPress);
     }
+  };
+
+  // --------------------------------- Отправка данных на сервер ---------------------------------
+
+  var onFormSubmit = function (evt) {
+    evt.preventDefault();
+    window.form.send();
+    deactivatePage();
+    addCardForm.removeEventListener('submit', onFormSubmit);
+    resetButton.removeEventListener('click', onResetClick);
+  };
+
+  // --------------------------------- Сброс данных формы ---------------------------------
+
+  var onResetClick = function (evt) {
+    evt.preventDefault();
+    addCardGuests.value = window.constants.GUESTS_DEFAULT;
+    addCardType.value = window.constants.FLAT;
+    addCardPrice.value = window.constants.MIN_FLAT_PRICE;
+    addCardForm.removeEventListener('submit', onFormSubmit);
+    resetButton.removeEventListener('click', onResetClick);
   };
 
   mainPin.addEventListener('mousedown', onMainPinMousedown);

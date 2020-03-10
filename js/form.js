@@ -15,6 +15,7 @@
   var addCardPrice = addCardForm.querySelector('#price');
   var addCardTimein = addCardForm.querySelector('#timein');
   var addCardTimeout = addCardForm.querySelector('#timeout');
+  var submitButton = addCardForm.querySelector('.ad-form__submit');
 
   var getAddress = function () {
     addCardAddress.value = (mainPin.offsetLeft + Math.floor(window.constants.WIDTH_PIN / 2)) + ', ' + (mainPin.offsetTop + window.constants.HEIGTH_PIN);
@@ -67,7 +68,27 @@
     }
   };
 
-  // --------------------------------- ОБработчики событий ---------------------------------
+  // --------------------------------- Отправка формы на сервер ---------------------------------
+  var successSend = function () {
+    window.messages.success();
+    submitButton.textContent = 'Данные отправлены';
+    submitButton.disabled = false;
+  };
+
+  var failSend = function (errorMessage) {
+    window.messages.error(errorMessage);
+    submitButton.textContent = 'Данные не отправлены';
+    submitButton.disabled = false;
+  };
+
+  var sendForm = function () {
+    window.backend.upload(new FormData(addCardForm), successSend, failSend);
+    submitButton.textContent = 'Данные отправляются...';
+    submitButton.disabled = true;
+  };
+
+
+  // --------------------------------- Обработчики событий ---------------------------------
 
   addCardGuests.addEventListener('change', onRoomGuestsCapacityChange);
   addCardRooms.addEventListener('change', onRoomGuestsCapacityChange);
@@ -77,6 +98,7 @@
 
   window.form = {
     addCardFormFieldsets: addCardFormFieldsets,
-    addCardAddress: addCardAddress
+    addCardAddress: addCardAddress,
+    send: sendForm
   };
 })();
