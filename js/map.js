@@ -17,16 +17,16 @@
 
   // ---------------------------------Создаем фрагмент ---------------------------------
 
-  var createPinsBlock = function (array) {
+  var createPinsBlock = function (data) {
     var fragment = document.createDocumentFragment();
-
-    for (var i = 0; i < array.length; i++) {
-      var pin = window.pin.renderPin(array[i]);
+    var filteredArray = window.filter.array(data);
+    for (var i = 0; i < filteredArray.length; i++) {
+      var pin = window.pin.renderPin(filteredArray[i]);
       fragment.appendChild(pin);
     }
 
     pinsBlock.appendChild(fragment);
-    setPinsHandlers(array);
+    setPinsHandlers(data);
   };
 
   // ---------------------------------Показ объяввления---------------------------------
@@ -101,6 +101,9 @@
     disableInputs(mapFilters);
     disableInputs(mapFeatures);
     removePins();
+    mapFilters.forEach(function (filter) {
+      filter.value = window.constants.DEFAULT_FILTER_VALUE;
+    });
   };
 
   var activeInputs = function () {
@@ -116,6 +119,9 @@
     addCardForm.classList.remove('ad-form--disabled');
     window.backend.load(createPinsBlock);
     setPinsHandlers();
+    mapFilters.forEach(function (filter) {
+      filter.addEventListener('change', onFiltersChange);
+    });
     addCardGuests.value = window.constants.GUESTS_DEFAULT;
     addCardType.value = window.constants.FLAT;
     addCardPrice.value = window.constants.MIN_FLAT_PRICE;
@@ -159,6 +165,11 @@
       mainPin.removeEventListener('mousedown', onMainPinMousedown);
       mainPin.removeEventListener('keydown', onMainPinEnterPress);
     }
+  };
+
+  var onFiltersChange = function () {
+    removePins();
+    window.backend.load(createPinsBlock);
   };
 
   // --------------------------------- Отправка данных на сервер ---------------------------------

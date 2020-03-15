@@ -43,6 +43,9 @@
   var TIMEOUT_IN_MS = 10000;
   var STATUS_OK = 200;
 
+  var MAX_PIN_ON_MAP = 5;
+  var DEFAULT_FILTER_VALUE = 'any';
+
   window.constants = {
 
     TYPES: TYPES,
@@ -86,6 +89,9 @@
     GET: GET,
     POST: POST,
     TIMEOUT_IN_MS: TIMEOUT_IN_MS,
-    STATUS_OK: STATUS_OK
+    STATUS_OK: STATUS_OK,
+
+    MAX_PIN_ON_MAP: MAX_PIN_ON_MAP,
+    DEFAULT_FILTER_VALUE: DEFAULT_FILTER_VALUE
   };
 })();
