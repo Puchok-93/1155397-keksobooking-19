@@ -87,6 +87,13 @@
     submitButton.disabled = true;
   };
 
+  // дефолтные значения
+  var setDefaultValues = function () {
+    addCardPrice.setAttribute('min', window.constants.MIN_FLAT_PRICE);
+    addCardPrice.placeholder = window.constants.MIN_FLAT_PRICE;
+    addCardGuests.value = window.constants.GUESTS_DEFAULT;
+  };
+
 
   // --------------------------------- Обработчики событий ---------------------------------
 
@@ -99,6 +106,7 @@
   window.form = {
     addCardFormFieldsets: addCardFormFieldsets,
     addCardAddress: addCardAddress,
-    send: sendForm
+    send: sendForm,
+    default: setDefaultValues
   };
 })();
