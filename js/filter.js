@@ -65,10 +65,10 @@
   };
 
 
-  var filterAdverts = function (array) {
+  var filterAdverts = function (adverts) {
     var filteredAdverts = [];
-    for (var i = 0; i < array.length; i++) {
-      var advert = array[i];
+    for (var i = 0; i < adverts.length; i++) {
+      var advert = adverts[i];
 
       var isOfferMatch = advert.offer && getFilterValues().every(function (element) {
         return (element.value === window.constants.DEFAULT_FILTER_VALUE) || filterRules[element.name](advert, element.value);
@@ -92,6 +92,6 @@
     form: filtersBlock,
     features: featureItems,
     default: window.constants.DEFAULT_FILTER_VALUE,
-    array: filterAdverts
+    adverts: filterAdverts
   };
 })();

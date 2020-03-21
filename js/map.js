@@ -31,7 +31,7 @@
     pinsBlock.appendChild(fragment);
   };
 
-  // отображение карточки при нажатии на метку
+  // --------------------------------- Управление карточками объявлений ---------------------------------
   var showPopupCard = function (advert) {
     var openedCard = document.querySelector('.map__card');
     if (openedCard) {
@@ -78,7 +78,7 @@
     var popup = document.querySelector('.map__card');
     var popupClose = popup.querySelector('.popup__close');
 
-    popupClose.addEventListener('click', function () {
+    var onPopupCloseClick = function () {
       var activePins = map.querySelectorAll('.map__pin--active');
 
       activePins.forEach(function (pin) {
@@ -86,20 +86,14 @@
       });
 
       popup.remove();
-    });
+      popupClose.removeEventListener('click', onPopupCloseClick);
+      document.removeEventListener('keydown', onDocumentEscKeydown);
+    };
 
-    document.addEventListener('keydown', function (evt) {
-      if (evt.key === window.constants.ESC_KEY) {
-        var activePins = map.querySelectorAll('.map__pin--active');
-
-        activePins.forEach(function (pin) {
-          pin.classList.remove('map__pin--active');
-        });
-
-        popup.remove();
-      }
-    });
+    popupClose.addEventListener('click', onPopupCloseClick);
+    document.addEventListener('keydown', onDocumentEscKeydown);
   };
+
   // --------------------------------- Деактивация страницы ---------------------------------
   var disableInputs = function (arrayInputs) {
     for (var i = 0; i < arrayInputs.length; i++) {
@@ -167,7 +161,7 @@
 
   var onLoadSuccess = function (data) {
     downloadedAdverts = data;
-    var filteredArray = window.filter.array(downloadedAdverts);
+    var filteredArray = window.filter.adverts(downloadedAdverts);
     createPinsBlock(filteredArray);
     return downloadedAdverts;
   };
@@ -186,7 +180,7 @@
     activateAllInputs();
   };
 
-  // управление меткой
+  // --------------------------------- Обработчики событий ---------------------------------
   var onMainPinMousedown = function (evt) {
     if (evt.button === window.constants.MOUSE_LB) {
       if (map.classList.contains('map--faded')) {
@@ -199,7 +193,6 @@
     }
   };
 
-  // обработчики
   var onMainPinKeydown = function (evt) {
     if (evt.key === window.constants.ENTER_KEY) {
       activatePage();
@@ -207,9 +200,24 @@
     }
   };
 
+  var onDocumentEscKeydown = function (evt) {
+    var popup = document.querySelector('.map__card');
+
+    if (evt.key === window.constants.ESC_KEY) {
+      var activePins = map.querySelectorAll('.map__pin--active');
+
+      activePins.forEach(function (pin) {
+        pin.classList.remove('map__pin--active');
+      });
+
+      popup.remove();
+      document.removeEventListener('keydown', onDocumentEscKeydown);
+    }
+  };
+
   var onFiltersChange = window.debounce(function () {
     removePins();
-    createPinsBlock(window.filter.array(downloadedAdverts));
+    createPinsBlock(window.filter.adverts(downloadedAdverts));
   });
 
   var onFormSubmit = function (evt) {

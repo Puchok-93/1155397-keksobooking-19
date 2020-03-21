@@ -70,13 +70,13 @@
 
   // --------------------------------- Отправка формы на сервер ---------------------------------
   var successSend = function () {
-    window.messages.success();
+    window.messages.showSuccessMessage();
     submitButton.textContent = 'Данные отправлены';
     submitButton.disabled = false;
   };
 
   var failSend = function (errorMessage) {
-    window.messages.error(errorMessage);
+    window.messages.showErrorMessage(errorMessage);
     submitButton.textContent = 'Данные не отправлены';
     submitButton.disabled = false;
   };
