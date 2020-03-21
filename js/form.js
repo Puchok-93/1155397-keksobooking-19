@@ -107,6 +107,6 @@
     addCardFormFieldsets: addCardFormFieldsets,
     addCardAddress: addCardAddress,
     send: sendForm,
-    default: setDefaultValues
+    setDefaults: setDefaultValues
   };
 })();

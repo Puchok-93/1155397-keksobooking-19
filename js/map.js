@@ -86,10 +86,10 @@
       });
 
       popup.remove();
-    }, {once: true});
+    });
 
     document.addEventListener('keydown', function (evt) {
-      if (evt.key === window.utils.ESC_KEY) {
+      if (evt.key === window.constants.ESC_KEY) {
         var activePins = map.querySelectorAll('.map__pin--active');
 
         activePins.forEach(function (pin) {
@@ -98,7 +98,7 @@
 
         popup.remove();
       }
-    }, {once: true});
+    });
   };
   // --------------------------------- Деактивация страницы ---------------------------------
   var disableInputs = function (arrayInputs) {
@@ -128,7 +128,7 @@
   };
 
   deactivateAllInputs();
-  window.form.default();
+  window.form.setDefaults();
 
   var removePins = function () {
     var pins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
@@ -154,7 +154,7 @@
     resetButton.removeEventListener('click', onResetClick);
 
     removePins();
-    window.form.default();
+    window.form.setDefaults();
     deactivateAllInputs();
   };
 
