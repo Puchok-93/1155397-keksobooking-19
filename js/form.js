@@ -70,13 +70,13 @@
 
   // --------------------------------- Отправка формы на сервер ---------------------------------
   var successSend = function () {
-    window.messages.success();
+    window.messages.showSuccessMessage();
     submitButton.textContent = 'Данные отправлены';
     submitButton.disabled = false;
   };
 
   var failSend = function (errorMessage) {
-    window.messages.error(errorMessage);
+    window.messages.showErrorMessage(errorMessage);
     submitButton.textContent = 'Данные не отправлены';
     submitButton.disabled = false;
   };
@@ -85,6 +85,13 @@
     window.backend.upload(new FormData(addCardForm), successSend, failSend);
     submitButton.textContent = 'Данные отправляются...';
     submitButton.disabled = true;
+  };
+
+  // дефолтные значения
+  var setDefaultValues = function () {
+    addCardPrice.setAttribute('min', window.constants.MIN_FLAT_PRICE);
+    addCardPrice.placeholder = window.constants.MIN_FLAT_PRICE;
+    addCardGuests.value = window.constants.GUESTS_DEFAULT;
   };
 
 
@@ -99,6 +106,7 @@
   window.form = {
     addCardFormFieldsets: addCardFormFieldsets,
     addCardAddress: addCardAddress,
-    send: sendForm
+    send: sendForm,
+    setDefaults: setDefaultValues
   };
 })();

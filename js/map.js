@@ -5,66 +5,96 @@
   var pinsBlock = map.querySelector('.map__pins');
   var mainPin = map.querySelector('.map__pin--main');
   var filtersContainer = map.querySelector('.map__filters-container');
-  var activePin = document.querySelector('.map__pin--active');
   var addCardForm = document.querySelector('.ad-form');
   var mapFilters = map.querySelectorAll('.map__filter');
   var mapFeatures = map.querySelectorAll('.map__features');
   var addCardFormFieldsets = addCardForm.querySelectorAll('fieldset');
+  var resetButton = addCardForm.querySelector('.ad-form__reset');
   var addCardGuests = addCardForm.querySelector('#capacity');
   var addCardType = addCardForm.querySelector('#type');
   var addCardPrice = addCardForm.querySelector('#price');
-  var resetButton = addCardForm.querySelector('.ad-form__reset');
+  var downloadedAdverts = [];
+  var adverts = [];
+  var filtersForm = window.filter.form;
 
-  // ---------------------------------Создаем фрагмент ---------------------------------
-
+  // создаем и вставляем фрагмент
   var createPinsBlock = function (array) {
     var fragment = document.createDocumentFragment();
 
     for (var i = 0; i < array.length; i++) {
+      array[i].id = i;
       var pin = window.pin.renderPin(array[i]);
       fragment.appendChild(pin);
     }
 
+    adverts = array;
     pinsBlock.appendChild(fragment);
-    setPinsHandlers(array);
   };
 
-  // ---------------------------------Показ объяввления---------------------------------
-  var setPinsHandlers = function (array) {
-    var pins = document.querySelectorAll('.map__pin:not(.map__pin--main)');
+  // --------------------------------- Управление карточками объявлений ---------------------------------
+  var showPopupCard = function (advert) {
+    var openedCard = document.querySelector('.map__card');
+    if (openedCard) {
+      openedCard.remove();
+    }
+    map.insertBefore(window.card.renderPopupCard(advert), filtersContainer);
+    addPopupCardListeners();
+  };
 
-    pins.forEach(function (element, index) {
-      element.addEventListener('click', function () {
-        activePin = document.querySelector('.map__pin--active');
+  var onPinClick = function (evt) {
+    var activePins = map.querySelectorAll('.map__pin--active');
+    var target = evt.target;
+    var isClickOnPin = target.classList.contains('map__pin:not(map__pin--main)');
+    var isClickInside = target.closest('.map__pin:not(.map__pin--main)');
+    var currentPin;
+    var isCurrentPinActive = isClickOnPin ? target.classList.contains('map__pin--active') : target.closest('.map__pin--active');
 
-        if (activePin) {
-          activePin.classList.remove('map__pin--active');
-        }
+    if (isClickOnPin) {
+      currentPin = target;
+    } else if (isClickInside) {
+      currentPin = isClickInside;
+    }
 
-        element.classList.add('map__pin--active');
+    if (!currentPin || isCurrentPinActive) {
+      return;
+    }
 
-        var card = document.querySelector('.map__card');
-        if (card) {
-          card.remove();
-        }
-
-        map.insertBefore(window.card.renderPopupCard(array[index]), filtersContainer);
-        closePopup();
-      });
+    var pinId = +currentPin.dataset.id;
+    var advert = adverts.find(function (ad) {
+      return ad.id === pinId;
     });
+
+    showPopupCard(advert);
+
+    activePins.forEach(function (pin) {
+      pin.classList.remove('map__pin--active');
+    });
+
+    currentPin.classList.add('map__pin--active');
   };
 
-  // ---------------------------------Закрытие объявления---------------------------------
-  var closePopup = function () {
+  // закрытие карточки
+  var addPopupCardListeners = function () {
     var popup = document.querySelector('.map__card');
     var popupClose = popup.querySelector('.popup__close');
 
-    popupClose.addEventListener('click', onCloseButtonClick);
-    document.addEventListener('keydown', onEscButtonKeydown);
+    var onPopupCloseClick = function () {
+      var activePins = map.querySelectorAll('.map__pin--active');
+
+      activePins.forEach(function (pin) {
+        pin.classList.remove('map__pin--active');
+      });
+
+      popup.remove();
+      popupClose.removeEventListener('click', onPopupCloseClick);
+      document.removeEventListener('keydown', onDocumentEscKeydown);
+    };
+
+    popupClose.addEventListener('click', onPopupCloseClick);
+    document.addEventListener('keydown', onDocumentEscKeydown);
   };
 
-  // ---------------------------------Деактивация страницы---------------------------------
-
+  // --------------------------------- Деактивация страницы ---------------------------------
   var disableInputs = function (arrayInputs) {
     for (var i = 0; i < arrayInputs.length; i++) {
       arrayInputs[i].setAttribute('disabled', true);
@@ -77,7 +107,22 @@
     }
   };
 
-  // Удаляем метки с карты
+  var deactivateAllInputs = function () {
+    disableInputs(addCardFormFieldsets);
+    disableInputs(mapFilters);
+    disableInputs(mapFeatures);
+
+    mapFilters.forEach(function (filter) {
+      filter.value = window.filter.default;
+    });
+
+    mapFeatures.forEach(function (checkbox) {
+      checkbox.checked = false;
+    });
+  };
+
+  deactivateAllInputs();
+  window.form.setDefaults();
 
   var removePins = function () {
     var pins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
@@ -92,76 +137,88 @@
     }
   };
 
-  // Деактивируем страницу
-
   var deactivatePage = function () {
+    addCardForm.reset();
     map.classList.add('map--faded');
     addCardForm.classList.add('ad-form--disabled');
-    disableInputs(addCardFormFieldsets);
-    disableInputs(mapFilters);
-    disableInputs(mapFeatures);
+
+    map.removeEventListener('click', onPinClick);
+    filtersForm.removeEventListener('change', onFiltersChange);
+    addCardForm.removeEventListener('submit', onFormSubmit);
+    resetButton.removeEventListener('click', onResetClick);
+
     removePins();
+    window.form.setDefaults();
+    deactivateAllInputs();
   };
 
-  var activeInputs = function () {
+  // --------------------------------- Активация страницы ---------------------------------
+  var activateAllInputs = function () {
     enableInputs(addCardFormFieldsets);
     enableInputs(mapFilters);
     enableInputs(mapFeatures);
   };
 
-  // ---------------------------------Активация страницы---------------------------------
+  var onLoadSuccess = function (data) {
+    downloadedAdverts = data;
+    var filteredArray = window.filter.adverts(downloadedAdverts);
+    createPinsBlock(filteredArray);
+    return downloadedAdverts;
+  };
 
   var activatePage = function () {
+    window.backend.load(onLoadSuccess);
     map.classList.remove('map--faded');
     addCardForm.classList.remove('ad-form--disabled');
-    window.backend.load(createPinsBlock);
-    setPinsHandlers();
     addCardGuests.value = window.constants.GUESTS_DEFAULT;
     addCardType.value = window.constants.FLAT;
     addCardPrice.value = window.constants.MIN_FLAT_PRICE;
+    map.addEventListener('click', onPinClick);
+    filtersForm.addEventListener('change', onFiltersChange);
     addCardForm.addEventListener('submit', onFormSubmit);
     resetButton.addEventListener('click', onResetClick);
-    activeInputs();
+    activateAllInputs();
   };
 
-  // ---------------------------------Обработчики событий ---------------------------------
-
-  var onCloseButtonClick = function () {
-    var popup = document.querySelector('.map__card');
-    var popupClose = popup.querySelector('.popup__close');
-    activePin = document.querySelector('.map__pin--active');
-    popup.remove();
-    activePin.classList.remove('map__pin--active');
-    popupClose.removeEventListener('click', onCloseButtonClick);
-  };
-
-  var onEscButtonKeydown = function (evt) {
-    if (evt.key === window.constants.ESC_KEY) {
-      var popup = document.querySelector('.map__card');
-      activePin = document.querySelector('.map__pin--active');
-      popup.remove();
-      activePin.classList.remove('map__pin--active');
-      document.removeEventListener('keydown', onEscButtonKeydown);
-    }
-  };
-
+  // --------------------------------- Обработчики событий ---------------------------------
   var onMainPinMousedown = function (evt) {
     if (evt.button === window.constants.MOUSE_LB) {
-      activatePage();
-      mainPin.removeEventListener('mousedown', onMainPinMousedown);
-      mainPin.removeEventListener('keydown', onMainPinEnterPress);
+      if (map.classList.contains('map--faded')) {
+        activatePage();
+      }
+
+      evt.preventDefault();
+
+      mainPin.removeEventListener('keydown', onMainPinKeydown);
     }
   };
 
-  var onMainPinEnterPress = function (evt) {
+  var onMainPinKeydown = function (evt) {
     if (evt.key === window.constants.ENTER_KEY) {
       activatePage();
-      mainPin.removeEventListener('mousedown', onMainPinMousedown);
-      mainPin.removeEventListener('keydown', onMainPinEnterPress);
+      mainPin.removeEventListener('keydown', onMainPinKeydown);
     }
   };
 
-  // --------------------------------- Отправка данных на сервер ---------------------------------
+  var onDocumentEscKeydown = function (evt) {
+    var popup = document.querySelector('.map__card');
+
+    if (evt.key === window.constants.ESC_KEY) {
+      var activePins = map.querySelectorAll('.map__pin--active');
+
+      activePins.forEach(function (pin) {
+        pin.classList.remove('map__pin--active');
+      });
+
+      popup.remove();
+      document.removeEventListener('keydown', onDocumentEscKeydown);
+    }
+  };
+
+  var onFiltersChange = window.debounce(function () {
+    removePins();
+    createPinsBlock(window.filter.adverts(downloadedAdverts));
+  });
 
   var onFormSubmit = function (evt) {
     evt.preventDefault();
@@ -171,17 +228,14 @@
     resetButton.removeEventListener('click', onResetClick);
   };
 
-  // --------------------------------- Сброс данных формы ---------------------------------
-
   var onResetClick = function (evt) {
     evt.preventDefault();
-    addCardGuests.value = window.constants.GUESTS_DEFAULT;
-    addCardType.value = window.constants.FLAT;
-    addCardPrice.value = window.constants.MIN_FLAT_PRICE;
+    deactivatePage();
     addCardForm.removeEventListener('submit', onFormSubmit);
     resetButton.removeEventListener('click', onResetClick);
   };
 
+  // добавляем обработчики
   mainPin.addEventListener('mousedown', onMainPinMousedown);
-  mainPin.addEventListener('keydown', onMainPinEnterPress);
+  mainPin.addEventListener('keydown', onMainPinKeydown);
 })();
