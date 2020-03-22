@@ -92,6 +92,6 @@
     form: filtersBlock,
     features: featureItems,
     default: window.constants.DEFAULT_FILTER_VALUE,
-    adverts: filterAdverts
+    getAdverts: filterAdverts
   };
 })();
