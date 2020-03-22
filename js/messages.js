@@ -51,11 +51,11 @@
 
   window.messages = {
 
-    showSuccessMessage: function () {
+    showSuccess: function () {
       renderMessage(successTemplate);
     },
 
-    showErrorMessage: function (errorMessage) {
+    showError: function (errorMessage) {
       renderMessage(errorTemplate);
       var messageText = document.querySelector('.error__message');
       messageText.textContent = errorMessage;

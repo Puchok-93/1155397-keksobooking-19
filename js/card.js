@@ -45,7 +45,7 @@
       var roomText = ' комната';
       if (mark.offer.rooms > 1 && mark.offer.rooms < 5) {
         roomText = ' комнаты';
-      } else if (mark.offer.rooms >= 5) {
+      } else if (mark.offer.rooms >= 5 || mark.offer.rooms === 0) {
         roomText = ' комнат';
       }
 

@@ -10,23 +10,22 @@
   var mapFeatures = map.querySelectorAll('.map__features');
   var addCardFormFieldsets = addCardForm.querySelectorAll('fieldset');
   var resetButton = addCardForm.querySelector('.ad-form__reset');
-  var addCardGuests = addCardForm.querySelector('#capacity');
-  var addCardType = addCardForm.querySelector('#type');
-  var addCardPrice = addCardForm.querySelector('#price');
   var downloadedAdverts = [];
   var adverts = [];
   var filtersForm = window.filter.form;
+  var addCardAddress = addCardForm.querySelector('#address');
 
   // создаем и вставляем фрагмент
   var createPinsBlock = function (array) {
     var fragment = document.createDocumentFragment();
 
-    for (var i = 0; i < array.length; i++) {
-      array[i].id = i;
-      var pin = window.pin.renderPin(array[i]);
-      fragment.appendChild(pin);
-    }
-
+    array.forEach(function (item, index) {
+      if (item.offer !== undefined) {
+        item.id = index;
+        var pin = window.pin.renderPin(item);
+        fragment.appendChild(pin);
+      }
+    });
     adverts = array;
     pinsBlock.appendChild(fragment);
   };
@@ -121,9 +120,6 @@
     });
   };
 
-  deactivateAllInputs();
-  window.form.setDefaults();
-
   var removePins = function () {
     var pins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
     var openedCard = document.querySelector('.map__card');
@@ -137,6 +133,12 @@
     }
   };
 
+  // Выставляем главную метку на позицию по умолчанию
+  var setMainPinDefaultPosition = function () {
+    mainPin.style.left = window.constants.MAIN_PIN_DEFAULT_CORDS_X + 'px';
+    mainPin.style.top = window.constants.MAIN_PIN_DEFAULT_CORDS_Y + 'px';
+  };
+
   var deactivatePage = function () {
     addCardForm.reset();
     map.classList.add('map--faded');
@@ -146,13 +148,19 @@
     filtersForm.removeEventListener('change', onFiltersChange);
     addCardForm.removeEventListener('submit', onFormSubmit);
     resetButton.removeEventListener('click', onResetClick);
-
+    document.removeEventListener('keydown', onDocumentEscKeydown);
     removePins();
+    setMainPinDefaultPosition();
     window.form.setDefaults();
+    window.form.removeListeners();
     deactivateAllInputs();
   };
 
   // --------------------------------- Активация страницы ---------------------------------
+  var getAddress = function () {
+    addCardAddress.value = (window.constants.MAIN_PIN_DEFAULT_CORDS_X + Math.floor(window.constants.WIDTH_PIN / 2)) + ', ' + (window.constants.MAIN_PIN_DEFAULT_CORDS_Y + window.constants.HEIGTH_PIN);
+  };
+
   var activateAllInputs = function () {
     enableInputs(addCardFormFieldsets);
     enableInputs(mapFilters);
@@ -161,23 +169,24 @@
 
   var onLoadSuccess = function (data) {
     downloadedAdverts = data;
-    var filteredArray = window.filter.adverts(downloadedAdverts);
-    createPinsBlock(filteredArray);
+    var filteredAdverts = window.filter.getAdverts(downloadedAdverts);
+    createPinsBlock(filteredAdverts);
     return downloadedAdverts;
   };
 
   var activatePage = function () {
     window.backend.load(onLoadSuccess);
+
     map.classList.remove('map--faded');
     addCardForm.classList.remove('ad-form--disabled');
-    addCardGuests.value = window.constants.GUESTS_DEFAULT;
-    addCardType.value = window.constants.FLAT;
-    addCardPrice.value = window.constants.MIN_FLAT_PRICE;
     map.addEventListener('click', onPinClick);
     filtersForm.addEventListener('change', onFiltersChange);
     addCardForm.addEventListener('submit', onFormSubmit);
     resetButton.addEventListener('click', onResetClick);
     activateAllInputs();
+    window.form.setDefaults();
+    window.form.addListeners();
+    getAddress();
   };
 
   // --------------------------------- Обработчики событий ---------------------------------
@@ -217,7 +226,8 @@
 
   var onFiltersChange = window.debounce(function () {
     removePins();
-    createPinsBlock(window.filter.adverts(downloadedAdverts));
+    document.removeEventListener('keydown', onDocumentEscKeydown);
+    createPinsBlock(window.filter.getAdverts(downloadedAdverts));
   });
 
   var onFormSubmit = function (evt) {
