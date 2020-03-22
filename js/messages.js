@@ -19,7 +19,6 @@
         node.remove();
         document.removeEventListener('click', onDocumentClick);
         document.removeEventListener('keydown', onDocumentEscKeydown);
-        button.removeEventListener('click', onButtonClick);
       }
     };
 
@@ -28,7 +27,6 @@
         node.remove();
         document.removeEventListener('click', onDocumentClick);
         document.removeEventListener('keydown', onDocumentEscKeydown);
-        button.removeEventListener('click', onButtonClick);
       }
     };
 

@@ -17,7 +17,7 @@
 
   var onRoomGuestsCapacityChange = function () {
     addCardGuests.setCustomValidity('');
-    addCardGuests.removeAttribute('style');
+    addCardGuests.style.borderColor = window.constants.VALID_INPUT_COLOR;
 
     if (addCardRooms.value < addCardGuests.value) {
       addCardGuests.setCustomValidity('Количество гостей превышает спальных мест. Увеличьте количество комнат.');
@@ -56,7 +56,7 @@
 
   // Проверка заголовка
   var onTitleInput = function () {
-    addCardTitle.removeAttribute('style');
+    addCardTitle.style.borderColor = window.constants.VALID_INPUT_COLOR;
 
     if (addCardTitle.validity.valueMissing || addCardTitle.validity.tooShort) {
       addCardTitle.style.borderColor = window.constants.INVALID_INPUT_COLOR;
@@ -65,7 +65,7 @@
 
   // Проверка цены
   var onPriceInput = function () {
-    addCardPrice.removeAttribute('style');
+    addCardPrice.style.borderColor = window.constants.VALID_INPUT_COLOR;
 
     if (addCardPrice.validity.rangeUnderflow || addCardPrice.validity.rangeOverflow || addCardPrice.validity.valueMissing) {
       addCardPrice.style.borderColor = window.constants.INVALID_INPUT_COLOR;
@@ -91,9 +91,9 @@
     addCardPrice.value = window.constants.MIN_FLAT_PRICE;
     addCardPrice.placeholder = window.constants.MIN_FLAT_PRICE;
     addCardGuests.value = window.constants.GUESTS_DEFAULT;
-    addCardTitle.removeAttribute('style');
-    addCardPrice.removeAttribute('style');
-    addCardGuests.removeAttribute('style');
+    addCardTitle.style.borderColor = window.constants.VALID_INPUT_COLOR;
+    addCardPrice.style.borderColor = window.constants.VALID_INPUT_COLOR;
+    addCardGuests.style.borderColor = window.constants.VALID_INPUT_COLOR;
   };
 
   // --------------------------------- Обработчики событий ---------------------------------
