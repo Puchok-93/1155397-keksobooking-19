@@ -71,7 +71,7 @@
         y: mainPinCoordinates.y + mainPinParam.height
       };
 
-      window.form.addCardAddress.value = (pinTailCoordinates.x + ', ' + pinTailCoordinates.y);
+      window.form.address.value = (pinTailCoordinates.x + ', ' + pinTailCoordinates.y);
 
     };
 
