@@ -4,16 +4,16 @@
   var map = document.querySelector('.map');
   var pinsBlock = map.querySelector('.map__pins');
   var mainPin = map.querySelector('.map__pin--main');
+  var form = document.querySelector('.ad-form');
+  var address = form.querySelector('#address');
+  var filtersForm = window.filter.form;
   var filtersContainer = map.querySelector('.map__filters-container');
-  var addCardForm = document.querySelector('.ad-form');
   var mapFilters = map.querySelectorAll('.map__filter');
-  var mapFeatures = map.querySelectorAll('.map__features');
-  var addCardFormFieldsets = addCardForm.querySelectorAll('fieldset');
-  var resetButton = addCardForm.querySelector('.ad-form__reset');
+  var mapFeatures = window.filter.features;
+  var formFieldsets = form.querySelectorAll('fieldset');
+  var resetButton = form.querySelector('.ad-form__reset');
   var downloadedAdverts = [];
   var adverts = [];
-  var filtersForm = window.filter.form;
-  var addCardAddress = addCardForm.querySelector('#address');
 
   // создаем и вставляем фрагмент
   var createPinsBlock = function (array) {
@@ -107,7 +107,7 @@
   };
 
   var deactivateAllInputs = function () {
-    disableInputs(addCardFormFieldsets);
+    disableInputs(formFieldsets);
     disableInputs(mapFilters);
     disableInputs(mapFeatures);
 
@@ -140,13 +140,13 @@
   };
 
   var deactivatePage = function () {
-    addCardForm.reset();
+    form.reset();
     map.classList.add('map--faded');
-    addCardForm.classList.add('ad-form--disabled');
+    form.classList.add('ad-form--disabled');
 
     map.removeEventListener('click', onPinClick);
     filtersForm.removeEventListener('change', onFiltersChange);
-    addCardForm.removeEventListener('submit', onFormSubmit);
+    form.removeEventListener('submit', onFormSubmit);
     resetButton.removeEventListener('click', onResetClick);
     document.removeEventListener('keydown', onDocumentEscKeydown);
     removePins();
@@ -158,11 +158,11 @@
 
   // --------------------------------- Активация страницы ---------------------------------
   var getAddress = function () {
-    addCardAddress.value = (window.constants.MAIN_PIN_DEFAULT_CORDS_X + Math.floor(window.constants.WIDTH_PIN / 2)) + ', ' + (window.constants.MAIN_PIN_DEFAULT_CORDS_Y + window.constants.HEIGTH_PIN);
+    address.value = (window.constants.MAIN_PIN_DEFAULT_CORDS_X + Math.floor(window.constants.WIDTH_PIN / 2)) + ', ' + (window.constants.MAIN_PIN_DEFAULT_CORDS_Y + window.constants.HEIGTH_PIN);
   };
 
   var activateAllInputs = function () {
-    enableInputs(addCardFormFieldsets);
+    enableInputs(formFieldsets);
     enableInputs(mapFilters);
     enableInputs(mapFeatures);
   };
@@ -178,10 +178,10 @@
     window.backend.load(onLoadSuccess);
 
     map.classList.remove('map--faded');
-    addCardForm.classList.remove('ad-form--disabled');
+    form.classList.remove('ad-form--disabled');
     map.addEventListener('click', onPinClick);
     filtersForm.addEventListener('change', onFiltersChange);
-    addCardForm.addEventListener('submit', onFormSubmit);
+    form.addEventListener('submit', onFormSubmit);
     resetButton.addEventListener('click', onResetClick);
     activateAllInputs();
     window.form.setDefaults();
@@ -234,14 +234,14 @@
     evt.preventDefault();
     window.form.send();
     deactivatePage();
-    addCardForm.removeEventListener('submit', onFormSubmit);
+    form.removeEventListener('submit', onFormSubmit);
     resetButton.removeEventListener('click', onResetClick);
   };
 
   var onResetClick = function (evt) {
     evt.preventDefault();
     deactivatePage();
-    addCardForm.removeEventListener('submit', onFormSubmit);
+    form.removeEventListener('submit', onFormSubmit);
     resetButton.removeEventListener('click', onResetClick);
   };
 

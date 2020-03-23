@@ -1,84 +1,83 @@
 'use strict';
 
 (function () {
-  var addCardForm = document.querySelector('.ad-form');
-  var addCardFormFieldsets = addCardForm.querySelectorAll('fieldset');
-  var addCardTitle = addCardForm.querySelector('#title');
-  var addCardGuests = addCardForm.querySelector('#capacity');
-  var addCardRooms = addCardForm.querySelector('#room_number');
-  var addCardAddress = addCardForm.querySelector('#address');
-  var addCardType = addCardForm.querySelector('#type');
-  var addCardPrice = addCardForm.querySelector('#price');
-  var addCardTimein = addCardForm.querySelector('#timein');
-  var addCardTimeout = addCardForm.querySelector('#timeout');
-  var submitButton = addCardForm.querySelector('.ad-form__submit');
+  var form = document.querySelector('.ad-form');
+  var title = form.querySelector('#title');
+  var guestNumber = form.querySelector('#capacity');
+  var roomNumber = form.querySelector('#room_number');
+  var address = form.querySelector('#address');
+  var roomType = form.querySelector('#type');
+  var price = form.querySelector('#price');
+  var checkInTime = form.querySelector('#timein');
+  var checkOutTime = form.querySelector('#timeout');
+  var submitButton = form.querySelector('.ad-form__submit');
 
   // --------------------------------- Валидация формы ---------------------------------
 
   var onRoomGuestsCapacityChange = function () {
-    addCardGuests.setCustomValidity('');
-    addCardGuests.style.borderColor = window.constants.VALID_INPUT_COLOR;
+    guestNumber.setCustomValidity('');
+    guestNumber.style.borderColor = window.constants.VALID_INPUT_COLOR;
 
-    if (addCardRooms.value < addCardGuests.value) {
-      addCardGuests.setCustomValidity('Количество гостей превышает спальных мест. Увеличьте количество комнат.');
-      addCardGuests.style.borderColor = window.constants.INVALID_INPUT_COLOR;
+    if (roomNumber.value < guestNumber.value) {
+      guestNumber.setCustomValidity('Количество гостей превышает спальных мест. Увеличьте количество комнат.');
+      guestNumber.style.borderColor = window.constants.INVALID_INPUT_COLOR;
     }
 
-    if (addCardRooms.value === '100' && addCardGuests.value !== '0') {
-      addCardGuests.setCustomValidity('100 комнат? Серьезно?');
-      addCardGuests.style.borderColor = window.constants.INVALID_INPUT_COLOR;
+    if (roomNumber.value === '100' && guestNumber.value !== '0') {
+      guestNumber.setCustomValidity('100 комнат? Серьезно?');
+      guestNumber.style.borderColor = window.constants.INVALID_INPUT_COLOR;
     }
   };
 
   var onTypeHouseChange = function () {
-    switch (addCardType.value) {
+    switch (roomType.value) {
       case window.constants.BUNGALO:
-        addCardPrice.setAttribute('min', 0);
-        addCardPrice.placeholder = 0;
+        price.setAttribute('min', 0);
+        price.placeholder = 0;
         break;
 
       case window.constants.FLAT:
-        addCardPrice.setAttribute('min', window.constants.MIN_FLAT_PRICE);
-        addCardPrice.placeholder = window.constants.MIN_FLAT_PRICE;
+        price.setAttribute('min', window.constants.MIN_FLAT_PRICE);
+        price.placeholder = window.constants.MIN_FLAT_PRICE;
         break;
 
       case window.constants.HOUSE:
-        addCardPrice.setAttribute('min', window.constants.MIN_HOUSE_PRICE);
-        addCardPrice.placeholder = window.constants.MIN_HOUSE_PRICE;
+        price.setAttribute('min', window.constants.MIN_HOUSE_PRICE);
+        price.placeholder = window.constants.MIN_HOUSE_PRICE;
         break;
 
       case window.constants.PALACE:
-        addCardPrice.setAttribute('min', window.constants.MIN_PALACE_PRICE);
-        addCardPrice.placeholder = window.constants.MIN_PALACE_PRICE;
+        price.setAttribute('min', window.constants.MIN_PALACE_PRICE);
+        price.placeholder = window.constants.MIN_PALACE_PRICE;
         break;
     }
   };
 
   // Проверка заголовка
   var onTitleInput = function () {
-    addCardTitle.style.borderColor = window.constants.VALID_INPUT_COLOR;
+    title.style.borderColor = window.constants.VALID_INPUT_COLOR;
 
-    if (addCardTitle.validity.valueMissing || addCardTitle.validity.tooShort) {
-      addCardTitle.style.borderColor = window.constants.INVALID_INPUT_COLOR;
+    if (title.validity.valueMissing || title.validity.tooShort) {
+      title.style.borderColor = window.constants.INVALID_INPUT_COLOR;
     }
   };
 
   // Проверка цены
   var onPriceInput = function () {
-    addCardPrice.style.borderColor = window.constants.VALID_INPUT_COLOR;
+    price.style.borderColor = window.constants.VALID_INPUT_COLOR;
 
-    if (addCardPrice.validity.rangeUnderflow || addCardPrice.validity.rangeOverflow || addCardPrice.validity.valueMissing) {
-      addCardPrice.style.borderColor = window.constants.INVALID_INPUT_COLOR;
+    if (price.validity.rangeUnderflow || price.validity.rangeOverflow || price.validity.valueMissing) {
+      price.style.borderColor = window.constants.INVALID_INPUT_COLOR;
     }
   };
 
   // Синхронизация по времени
   var onCheckTimeinChange = function () {
-    addCardTimeout.value = addCardTimein.value;
+    checkOutTime.value = checkInTime.value;
   };
 
   var onCheckTimeoutChange = function () {
-    addCardTimein.value = addCardTimeout.value;
+    checkInTime.value = checkOutTime.value;
   };
 
   // подсветка невалидных полей
@@ -88,36 +87,36 @@
 
   // Выставляем значения формы по умолчанию
   var setDefaultValues = function () {
-    addCardPrice.value = window.constants.MIN_FLAT_PRICE;
-    addCardPrice.placeholder = window.constants.MIN_FLAT_PRICE;
-    addCardGuests.value = window.constants.GUESTS_DEFAULT;
-    addCardTitle.style.borderColor = window.constants.VALID_INPUT_COLOR;
-    addCardPrice.style.borderColor = window.constants.VALID_INPUT_COLOR;
-    addCardGuests.style.borderColor = window.constants.VALID_INPUT_COLOR;
+    price.value = window.constants.MIN_FLAT_PRICE;
+    price.placeholder = window.constants.MIN_FLAT_PRICE;
+    guestNumber.value = window.constants.GUESTS_DEFAULT;
+    title.style.borderColor = window.constants.VALID_INPUT_COLOR;
+    price.style.borderColor = window.constants.VALID_INPUT_COLOR;
+    guestNumber.style.borderColor = window.constants.VALID_INPUT_COLOR;
   };
 
   // --------------------------------- Обработчики событий ---------------------------------
 
   var addFormListeners = function () {
-    addCardForm.addEventListener('invalid', onFormInvalid, true);
-    addCardTitle.addEventListener('input', onTitleInput);
-    addCardGuests.addEventListener('change', onRoomGuestsCapacityChange);
-    addCardRooms.addEventListener('change', onRoomGuestsCapacityChange);
-    addCardType.addEventListener('change', onTypeHouseChange);
-    addCardTimein.addEventListener('change', onCheckTimeinChange);
-    addCardTimeout.addEventListener('change', onCheckTimeoutChange);
-    addCardPrice.addEventListener('input', onPriceInput);
+    form.addEventListener('invalid', onFormInvalid, true);
+    title.addEventListener('input', onTitleInput);
+    guestNumber.addEventListener('change', onRoomGuestsCapacityChange);
+    roomNumber.addEventListener('change', onRoomGuestsCapacityChange);
+    roomType.addEventListener('change', onTypeHouseChange);
+    checkInTime.addEventListener('change', onCheckTimeinChange);
+    checkOutTime.addEventListener('change', onCheckTimeoutChange);
+    price.addEventListener('input', onPriceInput);
   };
 
   var removeFormListeners = function () {
-    addCardForm.removeEventListener('invalid', onFormInvalid, true);
-    addCardTitle.removeEventListener('input', onTitleInput);
-    addCardRooms.removeEventListener('input', onRoomGuestsCapacityChange);
-    addCardGuests.removeEventListener('input', onRoomGuestsCapacityChange);
-    addCardType.removeEventListener('change', onTypeHouseChange);
-    addCardPrice.removeEventListener('input', onPriceInput);
-    addCardTimein.removeEventListener('change', onCheckTimeinChange);
-    addCardTimeout.removeEventListener('change', onCheckTimeoutChange);
+    form.removeEventListener('invalid', onFormInvalid, true);
+    title.removeEventListener('input', onTitleInput);
+    roomNumber.removeEventListener('input', onRoomGuestsCapacityChange);
+    guestNumber.removeEventListener('input', onRoomGuestsCapacityChange);
+    roomType.removeEventListener('change', onTypeHouseChange);
+    price.removeEventListener('input', onPriceInput);
+    checkInTime.removeEventListener('change', onCheckTimeinChange);
+    checkOutTime.removeEventListener('change', onCheckTimeoutChange);
   };
 
   // --------------------------------- Отправка формы на сервер ---------------------------------
@@ -134,14 +133,13 @@
   };
 
   var sendForm = function () {
-    window.backend.upload(new FormData(addCardForm), successSend, failSend);
+    window.backend.upload(new FormData(form), successSend, failSend);
     submitButton.textContent = 'Данные отправляются...';
     submitButton.disabled = true;
   };
 
   window.form = {
-    addCardFormFieldsets: addCardFormFieldsets,
-    addCardAddress: addCardAddress,
+    address: address,
     send: sendForm,
     addListeners: addFormListeners,
     removeListeners: removeFormListeners,
